@@ -1,0 +1,44 @@
+#! /usr/bin/env lua
+
+xb  = {}
+xb .save_version  = 2019.1018   --   Year.MonthDay
+
+-----------------------------
+
+xb .shout  = false   --   say out loud in channel, or /msg <bot>
+xb .logout  = false   --   logout after executing command
+xb .kick_type  = 'kick'   --   'kick' or 'ban'
+xb .login_type  = false   --   simple 'Continue'  or full 'Login'  with password sent to server-bot
+
+xb .password  = ''
+xb .save_password  = false
+xb .user  = 'singleplayer'
+xb .reason  = ''
+
+-----------------------------
+
+xb .reasons  = {}
+xb .max_entries  = 12
+
+xb .reasons [ 1 ]  = 'You know what you did wrong'
+xb .reasons [ 2 ]  = 'No crashing server'
+xb .reasons [ 3 ]  = 'No hacking'
+xb .reasons [ 4 ]  = 'No dating'
+xb .reasons [ 5 ]  = 'No spam'
+xb .reasons [ 6 ]  = 'English'
+xb .reasons [ 7 ]  = 'Not here'
+xb .reasons [ 8 ]  = 'No thanks'
+
+-----------------------------
+
+xb .servers  = {}
+
+xb .servers [ 'Bananaland' ]  = false
+xb .servers [ 'Basic'      ]  = false
+xb .servers [ 'Building'   ]  = false
+xb .servers [ 'Creative'   ]  = false
+xb .servers [ 'MTZ'        ]  = false
+xb .servers [ 'Skyblock'   ]  = false
+xb .servers [ 'Survival'   ]  = false
+xb .servers [ 'All'        ]  = false
+

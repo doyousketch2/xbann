@@ -1,0 +1,413 @@
+#! /usr/bin/env lua
+
+local lgi  = require 'lgi'
+
+--  lgi .Gtk .disable_setlocale()
+--  os.setlocale(  os.getenv( 'LANG' )  )
+
+--  There doesn't seem to be any way around this warning.  HexChat already has Gtk initialized.  Disregard, unimportant.
+--  (hexchat:12345): Gtk-WARNING **: 12:34:56.789: gtk_disable_setlocale() must be called before gtk_init()
+
+local Gtk  = lgi .require( 'Gtk', '2.0' )
+
+local print_window_msgs  = false   --  set to  true  if you want to see excess jibberish.
+
+local function debug_print( text )
+    if print_window_msgs then   print( text )   end
+end
+
+local function debug_form_print( form, str1, str2, str3, str4, str5 )
+    local s1  = str1 or ''
+    local s2  = str2 or ''
+    local s3  = str3 or ''
+    local s4  = str4 or ''
+
+    debug_print(  string.format( form, s1, s2, s3, s4 )  )
+end
+
+--=========================================================
+--    generate default values, only if global xb table doesn't exist.
+--    useful while debugging window design in gEdit, outside of HexChat
+
+if type( hexchat ) == 'nil' then
+    debug_print( 'HexChat not found, using defaults' )
+
+    dofile( 'xbann.defaults' )
+end
+
+--=========================================================
+
+--  generate Gtk+2.0 popup menu
+
+local xbann_top_level = Gtk .Window  {  title = '/xbann',  id = 'xbann_top_level',
+                                         default_width = 400  }
+
+-----------------------------------------------------------
+
+local server_row_1  = Gtk .HButtonBox()
+local server_row_2  = Gtk .HButtonBox()
+
+debug_form_print(  'BL window active: %s',  xb .servers [ 'Bananaland' ]  )
+
+local Bananaland =  Gtk .CheckButton  {  label = 'Bananaland',  active = xb .servers [ 'Bananaland' ]  }
+local Basic      =  Gtk .CheckButton  {  label = 'Basic',       active = xb .servers [ 'Basic'      ]  }
+local Building   =  Gtk .CheckButton  {  label = 'Building',    active = xb .servers [ 'Building'   ]  }
+local Creative   =  Gtk .CheckButton  {  label = 'Creative',    active = xb .servers [ 'Creative'   ]  }
+
+server_row_1 :pack_start(  Bananaland,  true,  true,  5  )
+server_row_1 :pack_start(  Basic,       true,  true,  5  )
+server_row_1 :pack_start(  Building,    true,  true,  5  )
+server_row_1 :pack_start(  Creative,    true,  true,  5  )
+
+-----------------------------------------------------------
+
+local MTZ      =  Gtk .CheckButton  {  label = 'MTZ',       active = xb .servers [ 'MTZ'      ]  }
+local Skyblock =  Gtk .CheckButton  {  label = 'Skyblock',  active = xb .servers [ 'Skyblock' ]  }
+local Survival =  Gtk .CheckButton  {  label = 'Survival',  active = xb .servers [ 'Survival' ]  }
+local All      =  Gtk .CheckButton  {  label = 'All',       active = xb .servers [ 'All'      ]  }
+
+server_row_2 :pack_start(  MTZ,       true,  true,  5  )
+server_row_2 :pack_start(  Skyblock,  true,  true,  5  )
+server_row_2 :pack_start(  Survival,  true,  true,  5  )
+server_row_2 :pack_start(  All,       true,  true,  5  )
+
+--=========================================================
+
+-- tests if active, and enables / diables the All button when needed
+local function check_if_All_clicked()
+    if   Bananaland .active
+    and  Basic      .active
+    and  Building   .active
+    and  Creative   .active
+    and  MTZ        .active
+    and  Skyblock   .active
+    and  Survival   .active
+
+    then  All :set_active( true )
+    else  All :set_active( false )
+    end  --  if active
+end  --  check_if_All_clicked()
+
+---------------------------------------
+
+--  sets servers active when 'All' button pressed
+function All :on_released()
+    Bananaland :set_active(  All .active  )
+    Basic      :set_active(  All .active  )
+    Building   :set_active(  All .active  )
+    Creative   :set_active(  All .active  )
+    MTZ        :set_active(  All .active  )
+    Skyblock   :set_active(  All .active  )
+    Survival   :set_active(  All .active  )
+
+    check_if_All_clicked()
+    debug_form_print(  'servers: All %s',  All :get_active()  )
+
+end  --  All :on_clicked()
+
+--=========================================================
+
+local function print_active_state(  server_name,  server_state  )
+    debug_form_print(  'servers: All %s,  %s: %s',  All :get_active(),  server_name,  server_state  )
+end
+
+
+function Bananaland :on_released()
+    check_if_All_clicked()
+
+    print_active_state(  'Bananaland',  Bananaland :get_active()  )
+end  --  Bananaland clicked
+
+
+function Basic :on_released()
+    check_if_All_clicked()
+
+    print_active_state(  'Basic',  Basic :get_active()  )
+end  --  Basic clicked
+
+
+function Building :on_released()
+    check_if_All_clicked()
+
+    print_active_state(  'Building',  Building :get_active()  )
+end  --  Building clicked
+
+
+function Creative :on_released()
+    check_if_All_clicked()
+
+    print_active_state(  'Creative',  Creative :get_active()  )
+end  --  Creative clicked
+
+
+function MTZ :on_released()    check_if_All_clicked()
+
+    print_active_state(  'MTZ',  MTZ :get_active()  )
+end  --  MTZ clicked
+
+
+function Skyblock :on_released()    check_if_All_clicked()
+
+    print_active_state(  'Skyblock',  Skyblock :get_active()  )
+end  --  Skyblock clicked
+
+
+function Survival :on_released()    check_if_All_clicked()
+
+    print_active_state(  'Survival',  Survival :get_active()  )
+end  --  Survival clicked
+
+--=========================================================
+
+local kick_row  = Gtk .HButtonBox()
+
+local kick_image  = Gtk .Image .new_from_stock(  'gtk-jump-to',  3  )
+local kick_button =  Gtk .CheckButton  {  label = 'Kick',  image = kick_image  }
+
+local ban_image  = Gtk .Image .new_from_stock(  'gtk-dialog-warning',  3  )
+local ban_button =  Gtk .CheckButton  {  label = 'Ban',  image = ban_image  }
+
+local shout_image  = Gtk .Image .new_from_stock(  'gtk-select-font',  3  )
+local shout_button =  Gtk .Button  {  label = 'shout',  image = shout_image  }
+
+function shout_button :on_released()
+    if shout_button .label == 'shout' then
+        shout_button .label  = '/msg'
+        xb .shout  = true
+    else
+        shout_button .label  = 'shout'
+        xb .shout  = false
+    end
+
+    debug_print( 'shout: ' ..xb .shout  )
+end
+
+local about_image  = Gtk .Image .new_from_stock(  'gtk-about',  1  )
+local about_button =  Gtk .Button  {  label = 'About',  image = about_image  }
+
+function about_button :on_clicked()
+   local about  = Gtk .AboutDialog  {
+      program_name  = 'xbann',
+      title  = 'About...',
+      name  = 'xbann',
+      copyright  = '(C) Copyright 2019, Doyousketch2',
+      authors  = { 'Eli Innis   @Doyousketch2' },
+      license  = 'GNU Affero General Public License v3.0\n\nhttps://www.gnu.org/licenses/agpl-3.0.en.html'
+   }
+   about :run()
+   about :hide()
+end
+
+if     xb .kick_type == 'kick'  then  kick_button .active  = true
+elseif xb .kick_type == 'ban'  then  ban_button .active  = true
+end  --  kick_type
+
+---------------------------------------
+
+function kick_button :on_released()
+    xb .kick_type  = 'kick'
+    kick_button :set_active( true )
+    ban_button :set_active( false )
+
+    debug_print( 'kick_type: ' ..xb .kick_type )
+end
+
+function ban_button :on_released()
+    xb .kick_type  = 'ban'
+    kick_button :set_active( false )
+    ban_button :set_active( true )
+
+    debug_print( 'kick_type: ' ..xb .kick_type )
+end
+
+kick_row :pack_start(  kick_button,    true,  true,  0  )
+kick_row :pack_start(  ban_button,     true,  true,  0  )
+kick_row :pack_start(  shout_button,   true,  true,  0  )
+kick_row :pack_start(  about_button,   true,  true,  0  )
+
+-----------------------------------------------------------
+
+local user_box  = Gtk .HBox()
+
+local user_label  = Gtk .Label  {  label = '<b>Player</b> or <b>IP</b>',  use_markup = 'true'  }
+local user  = Gtk .Entry  {  }
+
+user .text  = xb .user
+
+user_box :pack_start(  user_label,  false,  false,  8  )
+user_box :pack_start(  user,        true,  true,  8  )
+
+-----------------------------------------------------------
+
+local reason_box  = Gtk .HBox()
+
+local reason_label  = Gtk .Label  {  label = 'Reason'  }
+local reason_dropdown  = Gtk .ComboBoxText  {  has_entry = true,  entry_text_column = 0  }
+
+for r = 1, #xb .reasons do   reason_dropdown :append_text(  xb .reasons [ r ]  )   end
+
+reason_dropdown :set_active( 0 )  --  dropdown list starts counting from 0, not 1, as you'd expect in Lua
+
+reason_box :pack_start(  reason_label,   false,  false,  8  )
+reason_box :pack_start(  reason_dropdown,  true,  true,  8  )
+
+-----------------------------------------------------------
+
+local login_info  = Gtk .Label  {  label = 'Enter password to <b>Login</b>;  or <b>Continue</b> if connected',
+                                    use_markup = 'true'  }
+
+-----------------------------------------------------------
+
+local password_box  = Gtk .HBox()
+
+local password_label  = Gtk .Label  {  label = 'Password'  }
+local password_entry  = Gtk .Entry  {  text = password,  visibility = false  }
+
+password_box :pack_start(  password_label,  false,  false,  8  )
+password_box :pack_start(  password_entry,    true,  true,  8  )
+
+---------------------------------------
+
+local save_password_image  = Gtk .Image .new_from_stock(  'gtk-save-as',  3  )
+local save_password =  Gtk .CheckButton  {  label  = ' Save Password'  }
+
+local logout_toggle  = Gtk .CheckButton  {  label  = ' Logout'  }
+
+function save_password :on_released()
+    if not save_password .image then   save_password .active = false   end
+
+    debug_form_print(  'save_password: %s', save_password .active )
+end
+
+-----------------------------------------------------------
+
+local button_box  = Gtk .HBox()
+
+local login_image  = Gtk .Image .new_from_stock(  'gtk-network',  5  )
+local continue_image  = Gtk .Image .new_from_stock(  'gtk-go-forward',  3  )
+
+local login_button =  Gtk .Button  {  label = 'Continue',  image = continue_image  }
+
+function password_entry :on_changed()
+    if #password_entry .text > 0 then
+
+        login_button .label  = 'Login'
+        login_button .image  = login_image
+
+        save_password .image  = save_password_image
+    else
+        login_button .label  = 'Continue'
+        login_button .image  = continue_image
+
+        save_password .image  = nil
+    end
+end  --  password_entry changed
+
+--=========================================================
+--=========================================================
+
+local function generate_values()
+
+    xb [ 'user'    ]  = user .text
+    xb [ 'reason'  ]  = reason_dropdown :get_child() .text
+    xb [ 'logout'  ]  = logout_toggle .active
+
+    if save_password .active then
+        if #password_entry .text > 0 then   debug_print( 'saving password' )   end
+
+        xb [ 'password' ]  = password_entry .text
+        xb [ 'save_password' ]  = true
+    else  xb [ 'save_password' ]  = false
+    end
+
+    xb .servers [ 'Bananaland' ]  = Bananaland .active
+    xb .servers [ 'Basic'      ]  = Basic      .active
+    xb .servers [ 'Building'   ]  = Building   .active
+    xb .servers [ 'Creative'   ]  = Creative   .active
+    xb .servers [ 'MTZ'        ]  = MTZ        .active
+    xb .servers [ 'Skyblock'   ]  = Skyblock   .active
+    xb .servers [ 'Survival'   ]  = Survival   .active
+    xb .servers [ 'All'        ]  = All        .active
+
+    local found_reason_at_index  = 0
+    local reason_text  = reason_dropdown :get_child() .text
+
+    for r = 1, #xb .reasons do
+        if reason_text == xb .reasons [ r ] then   found_reason_at_index = r   break
+        end
+    end  --  found_reason in table?
+
+    if found_reason_at_index == 0 and reason_text ~= '' then  --  put it in position 1
+        table.insert(  xb .reasons,  1,  reason_text  )
+
+        if #xb .reasons == xb .max_entries then
+            table.remove(  xb .reasons  )
+        end  --  only keep a doz' entries in the list
+
+    elseif found_reason_at_index > 1 then  --  nudge it up to top
+        table.remove(  xb .reasons,  found_reason_at_index  )
+        table.insert(  xb .reasons,  1,  reason_text  )
+    end  --  reasons
+end  --  generate_values()
+
+--=========================================================
+--=========================================================
+
+function login_button :on_released()
+    if #password_entry .text > 0 then
+        if print_window_msgs then   print( 'Login ' )   end
+        xb .login_type  = 'Login'
+
+    else
+        if print_window_msgs then   print( 'Continue ' )   end
+        xb .login_type  = 'Continue'
+    end  --  #password_entry
+
+    debug_print( 'generate_values()' )
+    generate_values()
+
+    local one_selected  --  make sure at least one server is selected
+    for key, value in pairs( xb .servers ) do
+        if value then   one_selected  = true   break  end
+    end  --  #servers
+
+    if not one_selected then      print( 'xbann:  select a Server' )
+    elseif #user .text < 1 then     print( 'xbann:  type a Player or IP' )
+    elseif not xb .kick_type then print( 'xbann:  select one:  Kick / Ban' )
+    else
+        debug_print( 'xbann_top_level :destroy()' )
+
+        xbann_top_level :destroy()
+        if type( hexchat ) ~= 'nil' then   xbann_actions()   end
+    end  --  one_selected
+end  --  login_button
+
+button_box :pack_start(  save_password,  true,  true,  5  )
+button_box :pack_start(  logout_toggle,  true,  true,  5  )
+button_box :pack_start(  login_button,   true,  true,  5  )
+
+--=========================================================
+
+local vbox = Gtk .VBox()
+
+--  widget,  expand,  fill,  padding
+
+vbox :pack_start(  server_row_1,  true,  true,  5  )
+vbox :pack_start(  server_row_2,  true,  true,  5  )
+
+vbox :pack_start(  user_box,     true,  true,  5  )
+vbox :pack_start(  reason_box,   true,  true,  5  )
+vbox :pack_start(  kick_row,     true,  true,  5  )
+
+vbox :pack_start(  login_info,   true,  true,  5  )
+vbox :pack_start(  password_box, true,  true,  5  )
+vbox :pack_start(  button_box,   true,  true,  5  )
+
+xbann_top_level :add( vbox )
+xbann_top_level :show_all()
+
+--  call main() if outside HexChat, while building window in gEdit
+if type( hexchat ) == 'nil' then   Gtk .main()   end
+
+--=========================================================
+
