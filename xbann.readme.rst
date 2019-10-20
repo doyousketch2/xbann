@@ -9,6 +9,7 @@ HexChat seems to exclusively use Lua version 5.3  and  Gtk+2.0
 
       cd ~/.config/hexchat/addons/
       curl https://raw.githubusercontent.com/doyousketch2/xbann/xbann.lua -o xbann.lua
+      curl https://raw.githubusercontent.com/doyousketch2/xbann/xbann.defaults -o xbann.refaults
       curl https://raw.githubusercontent.com/doyousketch2/xbann/xbann.window.module -o xbann.window.module
       curl https://raw.githubusercontent.com/doyousketch2/xbann/xbann.readme.rst -o xbann.readme.rst
 
@@ -73,4 +74,3 @@ HexChat seems to exclusively use Lua version 5.3  and  Gtk+2.0
             /xban clear
 
 =======================================================================================================================
-
